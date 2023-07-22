@@ -41,7 +41,7 @@ func main() {
 		statistic := database.GetVacanciesContainSkill(skill)
 		logger.Log.Printf("Навык упоминается %d раз (Для каждой профессии в каждом городе)", len(statistic))		
 		for i:=0; i<len(statistic); i+=InsertLimit {
-			group := statistic[i:InsertLimit]
+			group := statistic[i:]
 			if len(group) > InsertLimit {
 				group = group[:InsertLimit]
 			}
