@@ -40,7 +40,7 @@ func (d *Database) SaveSkillStatistic(skillStatistic []models.Statistic) {
 		return
 	}
 	vals := []interface{}{}
-	query := `INSERT INTO n_position_to_demand(
+	query := `INSERT IGNORE INTO n_position_to_demand(
 		demand_id, position_id, city_id, count_in_vac, is_custom, last_listed
 		) VALUES `
 
