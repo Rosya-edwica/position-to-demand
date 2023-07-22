@@ -8,6 +8,7 @@ type Statistic struct {
 	CityID         int
 	VacanciesCount int
 	LastDate       string
+	ParsingDate       string
 }
 
 type Skill struct {

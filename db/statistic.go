@@ -8,7 +8,7 @@ import (
 )
 
 func (d *Database) GetVacanciesContainSkill(skill models.Skill) (skillStatistic []models.Statistic) {
-	query := fmt.Sprintf(`SELECT position_id, city_id, count(*) as vacancy_count, vacancy_date 
+	query := fmt.Sprintf(`SELECT position_id, city_id, count(*) as vacancy_count, vacancy_date, parsing_date 
 	FROM h_vacancy 
 	WHERE LOWER(key_skills) LIKE '%%%s%%' AND position_id != 0 AND city_id != 0 
 	GROUP by position_id, city_id
@@ -18,9 +18,9 @@ func (d *Database) GetVacanciesContainSkill(skill models.Skill) (skillStatistic 
 
 	for rows.Next() {
 		var position_id, city_id, vacancies_count int
-		var vacancy_date string
+		var vacancy_date, parsing_date string
 
-		err = rows.Scan(&position_id, &city_id,  &vacancies_count, &vacancy_date)
+		err = rows.Scan(&position_id, &city_id,  &vacancies_count, &vacancy_date, &parsing_date)
 		checkErr(err)
 		skillStatistic = append(skillStatistic, models.Statistic{
 			SkillID: skill.Id,
@@ -28,6 +28,7 @@ func (d *Database) GetVacanciesContainSkill(skill models.Skill) (skillStatistic 
 			CityID: city_id,
 			LastDate: vacancy_date,
 			VacanciesCount: vacancies_count,
+			ParsingDate: parsing_date,
 		})
 	}
 
@@ -42,7 +43,13 @@ func (d *Database) SaveSkillStatistic(skillStatistic []models.Statistic) {
 
 	for _, stat := range skillStatistic {
 		query += "(?, ?, ?, ?, ?, ?),"
-		vals = append(vals, stat.SkillID, stat.PositionID, stat.CityID, stat.VacanciesCount, false, stat.LastDate)
+		var date string
+		if stat.LastDate == "" {
+			date = stat.ParsingDate
+		} else {
+			date = stat.LastDate
+		}
+		vals = append(vals, stat.SkillID, stat.PositionID, stat.CityID, stat.VacanciesCount, false, date)
 	}
 	query = query[0:len(query) - 1]
 	stmt, err := d.Connection.Prepare(query)
