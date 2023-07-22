@@ -1,17 +1,22 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/Rosya-edwica/position-to-demand/db"
 	"github.com/Rosya-edwica/position-to-demand/logger"
-	"os"
 
 	"github.com/joho/godotenv"
 )
+
+const InsertLimit = 2000
 
 func init() {
 	err := godotenv.Load(".env")
 	checkErr(err)
 }
+
 
 func main() {
 	database := db.Database{
@@ -35,7 +40,14 @@ func main() {
 		logger.Log.Printf("Навык: '%s'. Его ID: %d", skill.Name, skill.Id)
 		statistic := database.GetVacanciesContainSkill(skill)
 		logger.Log.Printf("Навык упоминается %d раз (Для каждой профессии в каждом городе)", len(statistic))		
-		database.SaveSkillStatistic(statistic)
+		for i:=0; i<len(statistic); i+=InsertLimit {
+			group := statistic[i:InsertLimit]
+			if len(group) > InsertLimit {
+				group = group[:InsertLimit]
+			}
+			database.SaveSkillStatistic(group)
+		}
+		fmt.Println("Done for id:", skill.Id)
 		lastId = skill.Id
 	}
 }

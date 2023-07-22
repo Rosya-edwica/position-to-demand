@@ -51,5 +51,5 @@ func (d *Database) SaveSkillStatistic(skillStatistic []models.Statistic) {
 	_, err = stmt.Exec(vals...)
 	checkErr(err)
 
-	logger.Log.Println("Success")
+	logger.Log.Printf("Успешно сохранили %d строк", len(skillStatistic))
 }
